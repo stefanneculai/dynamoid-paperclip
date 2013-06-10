@@ -99,7 +99,7 @@ If you need more information on either [Dynamoid](https://github.com/Veraticus/D
 Credits
 ------------
 
-dynamoid-paperclip borrows code, structure, and even its name very liberally from [mongoid-paperclip](https://github.com/meskyanichi/mongoid-paperclip). Without mongoid-paperclip to crib, from none of this would have been possible, so many thanks to everyone who contributed to mongoid-paperclip.
+dynamoid-paperclip borrows code, structure, and even its name very liberally from [mongoid-paperclip](https://github.com/meskyanichi/mongoid-paperclip). Without mongoid-paperclip to crib from, none of this would have been possible. Therefore, many thanks to everyone who contributed to mongoid-paperclip.
 
 
 License
