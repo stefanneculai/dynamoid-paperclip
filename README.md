@@ -4,7 +4,7 @@ Dynamoid::Paperclip - Making Paperclip play nice with Dynamoid
 As the title suggests: `Dynamoid::Paperclip` makes it easy to hook up [Paperclip](https://github.com/thoughtbot/paperclip) with [Dynamoid](https://github.com/Veraticus/Dynamoid).
 
 This is actually easier and faster to set up than when using Paperclip and the ActiveRecord ORM.
-This example assumes you are using **Ruby on Rails 3** and **Bundler**. However it doesn't require either.
+This example assumes you are using **Ruby on Rails 3** and **Bundler**. However, it doesn't require either.
 
 
 Setting it up
