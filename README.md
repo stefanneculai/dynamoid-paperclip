@@ -1,0 +1,109 @@
+Dynamoid::Paperclip - Making Paperclip play nice with Dynamoid ODM
+================================================================
+
+As the title suggests: `Dynamoid::Paperclip` makes it easy to hook up [Paperclip](https://github.com/thoughtbot/paperclip) with [Dynamoid](https://github.com/Veraticus/Dynamoid).
+
+This is actually easier and faster to set up than when using Paperclip and the ActiveRecord ORM.
+This example assumes you are using **Ruby on Rails 3** and **Bundler**. However it doesn't require either.
+
+
+Setting it up
+-------------
+
+Simply define the `dynamoid-paperclip` gem inside your `Gemfile`. Additionally, you can define the `aws-sdk` gem if you want to upload your files to Amazon S3. *You do not need to explicitly define the `paperclip` gem itself, since this is handled by `dynamoid-paperclip`.*
+
+**Rails.root/Gemfile - Just define the following:**
+
+    gem 'dynamoid-paperclip'
+    gem 'aws-sdk'
+
+Next let's assume we have a User model and we want to allow our users to upload an avatar.
+
+**Rails.root/app/models/user.rb - include the Dynamoid::Paperclip module and invoke the provided class method**
+
+    class User
+      include Dynamoid::Document
+      include Dynamoid::Paperclip
+
+      has_dynamoid_attached_file :avatar
+    end
+
+
+That's it
+--------
+
+That's all you have to do. Users can now upload avatars. Unlike ActiveRecord, Dynamoid doesn't use migrations, so we don't need to define the Paperclip columns in a separate file. Invoking the `has_dynamoid_attached_file` method will automatically define the necessary `:avatar` fields for you in the background.
+
+
+A more complex example
+----------------------
+
+Just like Paperclip, Dynamoid::Paperclip takes a second argument (hash of options) for the `has_dynamoid_attached_file` method, so you can do more complex things such as in the following example.
+
+    class User
+      include Dynamoid::Document
+      embeds_many :pictures
+    end
+
+    class Picture
+      include Dynamoid::Document
+      include Dynamoid::Paperclip
+
+      embedded_in :user, :inverse_of => :pictures
+
+      has_dynamoid_attached_file :attachment,
+        :path           => ':attachment/:id/:style.:extension',
+        :storage        => :s3,
+        :url            => ':s3_alias_url',
+        :s3_host_alias  => 'something.cloudfront.net',
+        :s3_credentials => File.join(Rails.root, 'config', 's3.yml'),
+        :styles => {
+          :original => ['1920x1680>', :jpg],
+          :small    => ['100x100#',   :jpg],
+          :medium   => ['250x250',    :jpg],
+          :large    => ['500x500>',   :jpg]
+        },
+        :convert_options => { :all => '-background white -flatten +matte' }
+    end
+
+    @user.pictures.each do |picture|
+      <%= picture.attachment.url %>
+    end
+
+Note on embedded documents: if you plan to save or update the parent document, you MUST add cascade_callbacks: true to your
+embeds_XXX statement.  Otherwise, your data will be updated but the paperclip functions will not run to copy/update your file.
+
+In the above example:
+
+```ruby
+    class User
+    ...
+    embeds_many :pictures, :cascade_callbacks => true
+    accepts_nested_attributes_for :pictures, ...
+    attr_accepted :pictures_attributes, ...
+    ...
+    end
+
+    @user.update_attributes({ ... :pictures => [...] })
+```
+
+
+There you go
+------------
+
+Quite a lot of people have been looking for a solution to use Paperclip with Dynamoid so I hope this helps!
+
+If you need more information on either [Dynamoid](https://github.com/Veraticus/Dynamoid) or [Paperclip](https://github.com/thoughtbot/paperclip) I suggest checking our their official documentation and website.
+
+
+Credits
+------------
+
+dynamoid-paperclip borrows code, structure, and even its name very liberally from [mongoid-paperclip](https://github.com/meskyanichi/mongoid-paperclip). Without mongoid-paperclip to crib, from none of this would have been possible, so many thanks to everyone who contributed to mongoid-paperclip.
+
+
+License
+-------
+
+Dynamoid::Paperclip is released under the MIT license. See LICENSE for more information.
+
