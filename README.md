@@ -1,4 +1,4 @@
-Dynamoid::Paperclip - Making Paperclip play nice with Dynamoid ODM
+Dynamoid::Paperclip - Making Paperclip play nice with Dynamoid
 ================================================================
 
 As the title suggests: `Dynamoid::Paperclip` makes it easy to hook up [Paperclip](https://github.com/thoughtbot/paperclip) with [Dynamoid](https://github.com/Veraticus/Dynamoid).
