@@ -13,20 +13,22 @@ Setting it up
 Simply define the `dynamoid-paperclip` gem inside your `Gemfile`. Additionally, you can define the `aws-sdk` gem if you want to upload your files to Amazon S3. *You do not need to explicitly define the `paperclip` gem itself, since this is handled by `dynamoid-paperclip`.*
 
 **Rails.root/Gemfile - Just define the following:**
-
-    gem 'dynamoid-paperclip'
-    gem 'aws-sdk'
+```ruby
+gem 'dynamoid-paperclip'
+gem 'aws-sdk'
+```
 
 Next let's assume we have a User model and we want to allow our users to upload an avatar.
 
 **Rails.root/app/models/user.rb - include the Dynamoid::Paperclip module and invoke the provided class method**
+```ruby
+class User
+  include Dynamoid::Document
+  include Dynamoid::Paperclip
 
-    class User
-      include Dynamoid::Document
-      include Dynamoid::Paperclip
-
-      has_dynamoid_attached_file :avatar
-    end
+  has_dynamoid_attached_file :avatar
+end
+```
 
 
 That's it
@@ -40,35 +42,37 @@ A more complex example
 
 Just like Paperclip, Dynamoid::Paperclip takes a second argument (hash of options) for the `has_dynamoid_attached_file` method, so you can do more complex things such as in the following example.
 
-    class User
-      include Dynamoid::Document
-      embeds_many :pictures
-    end
+```ruby
+class User
+  include Dynamoid::Document
+  embeds_many :pictures
+end
 
-    class Picture
-      include Dynamoid::Document
-      include Dynamoid::Paperclip
+class Picture
+  include Dynamoid::Document
+  include Dynamoid::Paperclip
 
-      embedded_in :user, :inverse_of => :pictures
+  embedded_in :user, :inverse_of => :pictures
 
-      has_dynamoid_attached_file :attachment,
-        :path           => ':attachment/:id/:style.:extension',
-        :storage        => :s3,
-        :url            => ':s3_alias_url',
-        :s3_host_alias  => 'something.cloudfront.net',
-        :s3_credentials => File.join(Rails.root, 'config', 's3.yml'),
-        :styles => {
-          :original => ['1920x1680>', :jpg],
-          :small    => ['100x100#',   :jpg],
-          :medium   => ['250x250',    :jpg],
-          :large    => ['500x500>',   :jpg]
-        },
-        :convert_options => { :all => '-background white -flatten +matte' }
-    end
+  has_dynamoid_attached_file :attachment,
+    :path           => ':attachment/:id/:style.:extension',
+    :storage        => :s3,
+    :url            => ':s3_alias_url',
+    :s3_host_alias  => 'something.cloudfront.net',
+    :s3_credentials => File.join(Rails.root, 'config', 's3.yml'),
+    :styles => {
+      :original => ['1920x1680>', :jpg],
+      :small    => ['100x100#',   :jpg],
+      :medium   => ['250x250',    :jpg],
+      :large    => ['500x500>',   :jpg]
+    },
+    :convert_options => { :all => '-background white -flatten +matte' }
+end
 
-    @user.pictures.each do |picture|
-      <%= picture.attachment.url %>
-    end
+@user.pictures.each do |picture|
+  <%= picture.attachment.url %>
+end
+```
 
 Note on embedded documents: if you plan to save or update the parent document, you MUST add cascade_callbacks: true to your
 embeds_XXX statement.  Otherwise, your data will be updated but the paperclip functions will not run to copy/update your file.
@@ -76,15 +80,15 @@ embeds_XXX statement.  Otherwise, your data will be updated but the paperclip fu
 In the above example:
 
 ```ruby
-    class User
-    ...
-    embeds_many :pictures, :cascade_callbacks => true
-    accepts_nested_attributes_for :pictures, ...
-    attr_accepted :pictures_attributes, ...
-    ...
-    end
+class User
+  ...
+  embeds_many :pictures, :cascade_callbacks => true
+  accepts_nested_attributes_for :pictures, ...
+  attr_accepted :pictures_attributes, ...
+  ...
+end
 
-    @user.update_attributes({ ... :pictures => [...] })
+@user.update_attributes({ ... :pictures => [...] })
 ```
 
 
